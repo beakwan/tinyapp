@@ -9,8 +9,20 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+//Function to generate random 6 character string
+const generateRandomString = function() {
+  string = Math.random().toString(36).substring(2, 8);
+  return string;
+};
+
+
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
+
+app.post("/urls", (req, res) => {
+  console.log(req.body);  // Log the POST request body to the console
+  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+});
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
@@ -26,18 +38,18 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-// app.get("/", (req, res) => {
-//   res.send("Hello!");
-// });
+app.get("/", (req, res) => {
+  res.send("Hello!");
+});
 
-// app.listen(PORT, () => {
-//   console.log(`Example app listening on port ${PORT}!`);
-// });
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
+});
 
-// app.get("/urls.json", (req, res) => {
-//   res.json(urlDatabase);
-// });
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
 
-// app.get("/hello", (req, res) => {
-//   res.send("<html><body>Hello <b>World</b></body></html>\n");
-// });
+app.get("/hello", (req, res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
+});
