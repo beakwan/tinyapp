@@ -56,10 +56,18 @@ app.post("/urls", (req, res) => {
   res.redirect(`urls/${shortCode}`);         
 });
 
+//Deletes urls and redirects to urls page
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const toDelete = req.params.shortURL;
+  delete urlDatabase[toDelete];
+  res.redirect("/urls");
+});
+
+
 
 //Set up listen, and log to ensure it is on the correct port
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`Tiny app listening on port ${PORT}!`);
 });
 
 
