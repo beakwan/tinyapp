@@ -20,6 +20,8 @@ const urlDatabase = {
 };
 
 
+
+//All GET requests
 //Says hello on the homepage
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -38,7 +40,9 @@ app.get("/urls/new", (req, res) => {
 
 //Shows long url from short url
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: req.params.longURL};
+  const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[shortURL];
+  templateVars = { shortURL, longURL};
   res.render("urls_show", templateVars);
 });
 
@@ -48,6 +52,10 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+
+
+
+//All POST requests
 //Generates new tiny url for long url input and redirects to show the new tiny url
 app.post("/urls", (req, res) => {
   const shortCode = generateRandomString();
@@ -63,8 +71,16 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect("/urls");
 });
 
+//Edit and update urls
+app.post("/u/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect("/urls");
+});
 
 
+
+//LISTEN request
 //Set up listen, and log to ensure it is on the correct port
 app.listen(PORT, () => {
   console.log(`Tiny app listening on port ${PORT}!`);
