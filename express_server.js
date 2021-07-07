@@ -16,8 +16,14 @@ app.set("view engine", "ejs");
 
 //Current hardcoded databases
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b2xVn2: {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "user1"
+  },
+  Rsm5xK: {
+    longURL: "http://www.google.com",
+    userID: "user1"
+  }
 };
 
 const users = {
@@ -31,12 +37,24 @@ const users = {
 
 
 
+//LISTEN request
+//Set up listen, and log to ensure it is on the correct port
+app.listen(PORT, () => {
+  console.log(`Tiny app listening on port ${PORT}!`);
+});
+
+
+
 //All POST requests
 //Generates new tiny url for long url input and redirects to show the new tiny url
 app.post("/urls", (req, res) => {
   const shortCode = generateRandomString();
-  urlDatabase[shortCode] = req.body.longURL;
-  res.redirect(`urls/${shortCode}`);         
+  urlDatabase[shortCode] = {
+    longURL: req.body.longURL,
+    userID: req.cookies.user_id
+  };
+  console.log(urlDatabase);
+  res.redirect(`/urls/${shortCode}`);         
 });
 
 //Deletes urls and redirects to urls page
@@ -46,10 +64,19 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect("/urls");
 });
 
+//Get to edit page from urls page
+app.post("/urls/:shortURL", (req, res) => {
+  res.redirect(`/urls/${req.params.shortURL}`);
+});
+
+
 //Edit and update urls
 app.post("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL] = {
+    longURL: req.body.longURL,
+    userID: req.cookies.user_id
+  };
   res.redirect("/urls");
 });
 
@@ -93,7 +120,6 @@ app.post("/logout", (req, res) => {
 
 
 
-
 //All GET requests
 //Says hello on the homepage
 app.get("/", (req, res) => {
@@ -116,7 +142,11 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user
   };
+  if (!user) {
+    res.redirect("/login");
+  } else {
   res.render("urls_new", templateVars);
+  }
 });
 
 //Shows long url from short url
@@ -158,17 +188,4 @@ app.get("/login", (req, res) => {
 
 
 
-
-
-//LISTEN request
-//Set up listen, and log to ensure it is on the correct port
-app.listen(PORT, () => {
-  console.log(`Tiny app listening on port ${PORT}!`);
-});
-
-
-//
-// app.get("/urls.json", (req, res) => {
-//   res.json(urlDatabase);
-// });
 
