@@ -111,6 +111,10 @@ app.post("/register", (req, res) => {
   }
 });
 
+//Login to TinyApp and redirect to urls page
+app.post("/login", (req, res) => {
+  res.redirect("/urls");
+});
 
 
 
@@ -167,6 +171,14 @@ app.get("/register", (req, res) => {
   res.render("register", templateVars);
 });
 
+//Shows a page to login
+app.get("/login", (req, res) => {
+  const user = findUserById(req.cookies.user_id, users);
+  const templateVars = {
+    user
+  };
+  res.render("login", templateVars);
+})
 
 
 
