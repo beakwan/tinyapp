@@ -48,7 +48,7 @@ const findUserById = function(userId, userDB) {
 const findUserEmail = function(email, userDB) {
   for (let user in userDB) {
     if (userDB[user].email === email) {
-      return userDB[user].email;
+      return userDB[user];
     } else {
       return null;
     }
@@ -81,18 +81,6 @@ app.post("/u/:shortURL", (req, res) => {
   res.redirect("/urls");
 });
 
-//Set login username to cookie and redirect back to urls page
-app.post("/login", (req, res) => {
-  //res.cookie("username", req.body.username);
-  res.redirect("/urls");
-});
-
-//Complete logout by clearing cookie and redirecting to urls page
-app.post("/logout", (req, res) => {
-  res.clearCookie("username");
-  res.redirect("/urls");
-});
-
 //Register new user and redirect to urls page
 app.post("/register", (req, res) => {
   if (!req.body.email || !req.body.password) {
@@ -113,9 +101,23 @@ app.post("/register", (req, res) => {
 
 //Login to TinyApp and redirect to urls page
 app.post("/login", (req, res) => {
-  res.redirect("/urls");
+  const user = findUserEmail(req.body.email, users);
+  if (!user) {
+    res.send("403! Email address not found. Please enter a valid email or register")
+   } else if (req.body.password !== user.password) {
+      res.send("403! Incorrect password. Please try again")
+   } else {
+     res.cookie("user_id", user.id);
+     res.redirect("/urls");
+   }
+   console.log(users);
 });
 
+//Complete logout by clearing cookie and redirecting to urls page
+app.post("/logout", (req, res) => {
+  res.clearCookie("user_id");
+  res.redirect("/urls");
+});
 
 
 
