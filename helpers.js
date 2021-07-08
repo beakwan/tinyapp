@@ -25,9 +25,24 @@ const findUserEmail = function(email, userDB) {
   }
 };
 
+//STILL NEED TO FIX THIS
+//Fundtion to find URLs based on user ID
+const urlsForUser = function(id, urlDB) {
+  let wantedURLs = [];
+  for (let url in urlDB) {
+     if (urlDB[url].userID === id) {
+       wantedURLs.push(urlDB[url]);
+       return wantedURLs;
+     }
+     return null;
+  }
+};
+
+
 
 module.exports= {
   generateRandomString,
   findUserById,
-  findUserEmail
+  findUserEmail,
+  urlsForUser
 };

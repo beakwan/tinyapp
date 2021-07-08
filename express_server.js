@@ -2,7 +2,11 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
-const {generateRandomString, findUserById, findUserEmail} = require("./helpers");
+const bcrypt = require('bcrypt');
+const salt = bcrypt.genSaltSync(10);
+
+
+const {generateRandomString, findUserById, findUserEmail, urlsForUser} = require("./helpers");
 
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
@@ -17,10 +21,12 @@ app.set("view engine", "ejs");
 //Current hardcoded databases
 const urlDatabase = {
   b2xVn2: {
+    shortURL: "b2xVn2",
     longURL: "http://www.lighthouselabs.ca",
     userID: "user1"
   },
   Rsm5xK: {
+    shortURL: "Rsm5xK",
     longURL: "http://www.google.com",
     userID: "user1"
   }
@@ -30,11 +36,11 @@ const users = {
   user1: {
     id: "user1",
     email: "email@email.com",
-    password: "hello"
+    password: bcrypt.hashSync("hello", salt)
   }
 };
 
-
+console.log(urlsForUser("user1", urlDatabase))
 
 
 //LISTEN request
@@ -50,10 +56,10 @@ app.listen(PORT, () => {
 app.post("/urls", (req, res) => {
   const shortCode = generateRandomString();
   urlDatabase[shortCode] = {
+    shortURL: shortCode,
     longURL: req.body.longURL,
     userID: req.cookies.user_id
   };
-  console.log(urlDatabase);
   res.redirect(`/urls/${shortCode}`);         
 });
 
@@ -74,6 +80,7 @@ app.post("/urls/:shortURL", (req, res) => {
 app.post("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   urlDatabase[shortURL] = {
+    shortURL: shortURL,
     longURL: req.body.longURL,
     userID: req.cookies.user_id
   };
@@ -91,7 +98,7 @@ app.post("/register", (req, res) => {
     users[id] = {
       id: id,
       email: req.body.email,
-      password: req.body.password
+      password: bcrypt.hashSync(req.body.password, salt)
     };
     res.cookie("user_id", id);
     res.redirect("/urls");
@@ -103,7 +110,7 @@ app.post("/login", (req, res) => {
   const user = findUserEmail(req.body.email, users);
   if (!user) {
     res.send("403! Email address not found. Please enter a valid email or register")
-   } else if (req.body.password !== user.password) {
+   } else if (bcrypt.compareSync(req.body.password, user.password) === false) {
       res.send("403! Incorrect password. Please try again")
    } else {
      res.cookie("user_id", user.id);
@@ -129,10 +136,15 @@ app.get("/", (req, res) => {
 //Gets all of the urls
 app.get("/urls", (req, res) => {
   const user = findUserById(req.cookies.user_id, users);
+  const urls = urlsForUser(req.cookies.user_id, urlDatabase);
   const templateVars = { 
-    urls: urlDatabase,
+    urls,
     user
    };
+   if (!user) {
+    res.render("urls_welcome", templateVars);
+   }
+   console.log(urls);
   res.render("urls_index", templateVars);
 });
 
@@ -154,16 +166,21 @@ app.get("/urls/:shortURL", (req, res) => {
   const user = findUserById(req.cookies.user_id, users);
   templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     user
   };
   res.render("urls_show", templateVars);
 });
 
-//Redirects to long url from short url
+//Redirects to long url from short url, if short url does not exist, redirect back to main page
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  if (!urlDatabase[req.params.shortURL]){
+    res.cookie("error", "Tiny URL not found");
+    res.redirect("/urls");
+  } else {
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
+  }
 });
 
 //Shows a page to register
@@ -182,7 +199,7 @@ app.get("/login", (req, res) => {
     user
   };
   res.render("login", templateVars);
-})
+});
 
 
 
