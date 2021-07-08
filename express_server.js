@@ -5,6 +5,12 @@ const PORT = 8080; // default port 8080
 const bcrypt = require('bcrypt');
 const salt = bcrypt.genSaltSync(10);
 
+const cookieSession = require("cookie-session");
+app.use(cookieSession({
+  name: 'session',
+  keys: ["verySecretThings", "IReallyLikeCookies"]
+}));
+
 
 const {generateRandomString, findUserById, findUserEmail, urlsForUser} = require("./helpers");
 
@@ -58,7 +64,7 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortCode] = {
     shortURL: shortCode,
     longURL: req.body.longURL,
-    userID: req.cookies.user_id
+    userID: req.session.user_id
   };
   res.redirect(`/urls/${shortCode}`);         
 });
@@ -82,7 +88,7 @@ app.post("/u/:shortURL", (req, res) => {
   urlDatabase[shortURL] = {
     shortURL: shortURL,
     longURL: req.body.longURL,
-    userID: req.cookies.user_id
+    userID: req.session.user_id
   };
   res.redirect("/urls");
 });
@@ -100,7 +106,7 @@ app.post("/register", (req, res) => {
       email: req.body.email,
       password: bcrypt.hashSync(req.body.password, salt)
     };
-    res.cookie("user_id", id);
+    req.session.user_id = id;
     res.redirect("/urls");
   }
 });
@@ -113,7 +119,7 @@ app.post("/login", (req, res) => {
    } else if (bcrypt.compareSync(req.body.password, user.password) === false) {
       res.send("403! Incorrect password. Please try again")
    } else {
-     res.cookie("user_id", user.id);
+     req.session.user_id = user.id;
      res.redirect("/urls");
    }
    console.log(users);
@@ -121,7 +127,7 @@ app.post("/login", (req, res) => {
 
 //Complete logout by clearing cookie and redirecting to urls page
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/urls");
 });
 
@@ -135,8 +141,8 @@ app.get("/", (req, res) => {
 
 //Gets all of the urls
 app.get("/urls", (req, res) => {
-  const user = findUserById(req.cookies.user_id, users);
-  const urls = urlsForUser(req.cookies.user_id, urlDatabase);
+  const user = findUserById(req.session.user_id, users);
+  const urls = urlsForUser(req.session.user_id, urlDatabase);
   const templateVars = { 
     urls,
     user
@@ -150,7 +156,7 @@ app.get("/urls", (req, res) => {
 
 //Creates new urls
 app.get("/urls/new", (req, res) => {
-  const user = findUserById(req.cookies.user_id, users);
+  const user = findUserById(req.session.user_id, users);
   const templateVars = {
     user
   };
@@ -163,7 +169,7 @@ app.get("/urls/new", (req, res) => {
 
 //Shows long url from short url
 app.get("/urls/:shortURL", (req, res) => {
-  const user = findUserById(req.cookies.user_id, users);
+  const user = findUserById(req.session.user_id, users);
   templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
@@ -185,7 +191,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 //Shows a page to register
 app.get("/register", (req, res) => {
-  const user = findUserById(req.cookies.user_id, users);
+  const user = findUserById(req.session.user_id, users);
   const templateVars = {
     user
   };
@@ -194,7 +200,7 @@ app.get("/register", (req, res) => {
 
 //Shows a page to login
 app.get("/login", (req, res) => {
-  const user = findUserById(req.cookies.user_id, users);
+  const user = findUserById(req.session.user_id, users);
   const templateVars = {
     user
   };
