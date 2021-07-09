@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
+const {generateRandomString, findUserById, findUserByEmail, urlsForUser} = require("./helpers");
+
 const bcrypt = require('bcrypt');
 const salt = bcrypt.genSaltSync(10);
 
@@ -10,12 +12,6 @@ app.use(cookieSession({
   name: 'session',
   keys: ["verySecretThings", "IReallyLikeCookies"]
 }));
-
-
-const {generateRandomString, findUserById, findUserByEmail, urlsForUser} = require("./helpers");
-
-// const cookieParser = require("cookie-parser");
-// app.use(cookieParser());
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -80,7 +76,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   res.redirect(`/urls/${req.params.shortURL}`);
 });
-
 
 //Edit and update urls
 app.post("/u/:shortURL", (req, res) => {
@@ -176,7 +171,6 @@ app.get("/urls/:shortURL", (req, res) => {
   if (!user || !urls[req.params.shortURL]) {
     return res.send("Access denied. Please login or try another tiny URL");
   }
-  
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urls[req.params.shortURL],
