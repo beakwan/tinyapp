@@ -1,19 +1,8 @@
-const testUsers = {
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
-  }
-};
+
 //HELPER Functions
 //Function to generate random 6 character string
 const generateRandomString = function() {
-  string = Math.random().toString(36).substring(2, 8);
+  const string = Math.random().toString(36).substring(2, 8);
   return string;
 };
 
@@ -22,11 +11,11 @@ const findUserById = function(userId, userDB) {
   for (let user in userDB) {
     if (user === userId) {
       return userDB[user];
-    } 
+    }
   }
 };
 
-//Function to lookup a user email
+//Function to lookup a user by email
 const findUserByEmail = function(email, userDB) {
   const users = Object.values(userDB);
   for (const user of users) {
@@ -36,8 +25,8 @@ const findUserByEmail = function(email, userDB) {
   }
 };
 
-//STILL NEED TO FIX THIS
-//Fundtion to find URLs based on user ID
+
+//Function to find URLs based on user ID
 const urlsForUser = function(id, urlDB) {
   const wantedURLs = {};
   for (const url in urlDB) {
@@ -48,9 +37,8 @@ const urlsForUser = function(id, urlDB) {
   return wantedURLs;
 };
 
-findUserByEmail("lkjsdf", testUsers)
 
-module.exports= {
+module.exports = {
   generateRandomString,
   findUserById,
   findUserByEmail,

@@ -14,8 +14,8 @@ app.use(cookieSession({
 
 const {generateRandomString, findUserById, findUserByEmail, urlsForUser} = require("./helpers");
 
-const cookieParser = require("cookie-parser");
-app.use(cookieParser());
+// const cookieParser = require("cookie-parser");
+// app.use(cookieParser());
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -26,16 +26,16 @@ app.set("view engine", "ejs");
 
 //Current hardcoded databases
 const urlDatabase = {
-  // b2xVn2: {
-  //   shortURL: "b2xVn2",
-  //   longURL: "http://www.lighthouselabs.ca",
-  //   userID: "user1"
-  // },
-  // Rsm5xK: {
-  //   shortURL: "Rsm5xK",
-  //   longURL: "http://www.google.com",
-  //   userID: "user1"
-  // }
+  b2xVn2: {
+    shortURL: "b2xVn2",
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "user1"
+  },
+  Rsm5xK: {
+    shortURL: "Rsm5xK",
+    longURL: "http://www.google.com",
+    userID: "user1"
+  }
 };
 
 const users = {
@@ -66,7 +66,7 @@ app.post("/urls", (req, res) => {
     longURL: req.body.longURL,
     userID: req.session.user_id
   };
-  res.redirect(`/urls/${shortCode}`);         
+  res.redirect(`/urls/${shortCode}`);
 });
 
 //Deletes urls and redirects to urls page
@@ -78,7 +78,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 //Get to edit page from urls page
 app.post("/urls/:shortURL", (req, res) => {
-  
   res.redirect(`/urls/${req.params.shortURL}`);
 });
 
@@ -116,13 +115,13 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
   const user = findUserByEmail(req.body.email, users);
   if (!user) {
-    res.status(403).send("Email address not found. Please enter a valid email or register")
-   } else if (bcrypt.compareSync(req.body.password, user.password) === false) {
-      res.status(403).send("Incorrect password. Please try again")
-   } else {
-     req.session.user_id = user.id;
-     res.redirect("/urls");
-   }
+    res.status(403).send("Email address not found. Please enter a valid email or register");
+  } else if (bcrypt.compareSync(req.body.password, user.password) === false) {
+    res.status(403).send("Incorrect password. Please try again");
+  } else {
+    req.session.user_id = user.id;
+    res.redirect("/urls");
+  }
 });
 
 //Complete logout by clearing cookie and redirecting to urls page
@@ -147,13 +146,13 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   const user = findUserById(req.session.user_id, users);
   const urls = urlsForUser(req.session.user_id, urlDatabase);
-  const templateVars = { 
+  const templateVars = {
     urls,
     user
-   };
-   if (!user) {
+  };
+  if (!user) {
     return res.render("urls_welcome", templateVars);
-   }
+  }
   res.render("urls_index", templateVars);
 });
 
@@ -166,7 +165,7 @@ app.get("/urls/new", (req, res) => {
   if (!user) {
     res.redirect("/login");
   } else {
-  res.render("urls_new", templateVars);
+    res.render("urls_new", templateVars);
   }
 });
 
@@ -175,10 +174,10 @@ app.get("/urls/:shortURL", (req, res) => {
   const user = findUserById(req.session.user_id, users);
   const urls = urlsForUser(req.session.user_id, urlDatabase);
   if (!user || !urls[req.params.shortURL]) {
-    return res.send("Access denied. Please login or try another tiny URL")
+    return res.send("Access denied. Please login or try another tiny URL");
   }
   
-  templateVars = {
+  const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urls[req.params.shortURL],
     user
@@ -188,9 +187,9 @@ app.get("/urls/:shortURL", (req, res) => {
 
 //Redirects to long url from short url, if short url does not exist, redirect back to main page
 app.get("/u/:shortURL", (req, res) => {
-  if (!urlDatabase[req.params.shortURL]){
-    return res.status(404).send("Tiny URL does not exist. Please try again.")
-  } 
+  if (!urlDatabase[req.params.shortURL]) {
+    return res.status(404).send("Tiny URL does not exist. Please try again.");
+  }
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
@@ -199,7 +198,7 @@ app.get("/u/:shortURL", (req, res) => {
 app.get("/register", (req, res) => {
   const user = findUserById(req.session.user_id, users);
   if (user) {
-    return res.redirect("/urls")
+    return res.redirect("/urls");
   }
   const templateVars = {
     user
@@ -211,7 +210,7 @@ app.get("/register", (req, res) => {
 app.get("/login", (req, res) => {
   const user = findUserById(req.session.user_id, users);
   if (user) {
-    return res.redirect("/urls")
+    return res.redirect("/urls");
   }
   const templateVars = {
     user
