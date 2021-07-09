@@ -15,13 +15,11 @@ const findUserById = function(userId, userDB) {
 };
 
 //Function to lookup a user email
-const findUserEmail = function(email, userDB) {
+const findUserByEmail = function(email, userDB) {
   for (let user in userDB) {
     if (userDB[user].email === email) {
       return userDB[user];
-    } else {
-      return null;
-    }
+    } 
   }
 };
 
@@ -43,6 +41,6 @@ const urlsForUser = function(id, urlDB) {
 module.exports= {
   generateRandomString,
   findUserById,
-  findUserEmail,
+  findUserByEmail,
   urlsForUser
 };
