@@ -26,16 +26,16 @@ app.set("view engine", "ejs");
 
 //Current hardcoded databases
 const urlDatabase = {
-  b2xVn2: {
-    shortURL: "b2xVn2",
-    longURL: "http://www.lighthouselabs.ca",
-    userID: "user1"
-  },
-  Rsm5xK: {
-    shortURL: "Rsm5xK",
-    longURL: "http://www.google.com",
-    userID: "user1"
-  }
+  // b2xVn2: {
+  //   shortURL: "b2xVn2",
+  //   longURL: "http://www.lighthouselabs.ca",
+  //   userID: "user1"
+  // },
+  // Rsm5xK: {
+  //   shortURL: "Rsm5xK",
+  //   longURL: "http://www.google.com",
+  //   userID: "user1"
+  // }
 };
 
 const users = {
@@ -46,7 +46,7 @@ const users = {
   }
 };
 
-console.log(urlsForUser("user1", urlDatabase))
+
 
 
 //LISTEN request
@@ -78,6 +78,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 //Get to edit page from urls page
 app.post("/urls/:shortURL", (req, res) => {
+  
   res.redirect(`/urls/${req.params.shortURL}`);
 });
 
@@ -122,7 +123,6 @@ app.post("/login", (req, res) => {
      req.session.user_id = user.id;
      res.redirect("/urls");
    }
-   console.log(users);
 });
 
 //Complete logout by clearing cookie and redirecting to urls page
@@ -173,9 +173,14 @@ app.get("/urls/new", (req, res) => {
 //Shows long url from short url
 app.get("/urls/:shortURL", (req, res) => {
   const user = findUserById(req.session.user_id, users);
+  const urls = urlsForUser(req.session.user_id, urlDatabase);
+  if (!user || !urls[req.params.shortURL]) {
+    return res.send("Access denied. Please login or try another tiny URL")
+  }
+  
   templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
+    longURL: urls[req.params.shortURL],
     user
   };
   res.render("urls_show", templateVars);

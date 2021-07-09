@@ -24,18 +24,18 @@
       <tbody>
           <tr>
             <% for (const url in urls) { %>
-            <td><%= url.shortURL %></td>
-            <td><%= url.longURL %></td>
-            <td><form method="GET" action="/urls/<%= urls %>">
+            <td><%= url %></td>
+            <td><%= urls[url] %></td>
+            <td><form method="GET" action="/urls/<%= url %>">
               <input type="submit" value="Edit">
             </form>
             </td>
-            <td><form method="POST" action="/urls/<%= urls %>/delete">
+            <td><form method="POST" action="/urls/<%= url %>/delete">
               <input type="submit" value="Delete">
             </form>
             </td>
-            <% } %>
           </tr>
+          <% } %>
       </tbody>
     </table>
   </main>
