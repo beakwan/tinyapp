@@ -12,6 +12,7 @@
     </div>
     <% if (user) { %>
         Logged in as: <%= user.email %>! 
+        <p style="padding: 0 2em 2em 0"></p>
         <form method="POST" action="/logout">
         <button type="submit" class="btn btn-primary"> Logout </button>
         </form>
@@ -19,6 +20,7 @@
     <form method="GET" action="/login">
       <button type="submit" class="btn btn-primary">Login</button>
     </form>
+    <p style="padding: 0 2em 2em 0"></p>
     <form method="GET" action="/register">
       <button type="submit" class="btn btn-primary">Register</button>
     </form>
