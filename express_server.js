@@ -68,12 +68,28 @@ app.post("/urls", (req, res) => {
 //Deletes urls and redirects to urls page
 app.post("/urls/:shortURL/delete", (req, res) => {
   const toDelete = req.params.shortURL;
+  const user = req.session.user_id;
+  const urls = urlsForUser(req.session.user_id, urlDatabase);
+  if (!user) {
+    res.status(400).send("Please login or register to delete URLs");
+  } else if (!urls[req.params.shortURL]) {
+    res.status(400).send("You are not authorized to delete this URL. Please try again.")
+  } 
+
   delete urlDatabase[toDelete];
   res.redirect("/urls");
 });
 
 //Get to edit page from urls page
 app.post("/urls/:shortURL", (req, res) => {
+  const user = req.session.user_id;
+  const urls = urlsForUser(req.session.user_id, urlDatabase);
+  if (!user) {
+    res.status(400).send("Please login or register to edit URLs");
+  } else if (!urls[req.params.shortURL]) {
+    res.status(400).send("You are not authorized to edit this URL. Please try again.")
+  } 
+
   res.redirect(`/urls/${req.params.shortURL}`);
 });
 

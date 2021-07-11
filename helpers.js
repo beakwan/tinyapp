@@ -1,13 +1,13 @@
 
 //HELPER Functions
 //Function to generate random 6 character string
-const generateRandomString = function() {
+const generateRandomString = () => {
   const string = Math.random().toString(36).substring(2, 8);
   return string;
 };
 
 //Function to loop through users database to find correct id
-const findUserById = function(userId, userDB) {
+const findUserById = (userId, userDB) => {
   for (let user in userDB) {
     if (user === userId) {
       return userDB[user];
@@ -16,7 +16,7 @@ const findUserById = function(userId, userDB) {
 };
 
 //Function to lookup a user by email
-const findUserByEmail = function(email, userDB) {
+const findUserByEmail = (email, userDB) => {
   const users = Object.values(userDB);
   for (const user of users) {
     if (user.email === email) {
